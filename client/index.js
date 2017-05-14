@@ -1,8 +1,16 @@
-window.qq = require('../node_modules/fine-uploader/s3.fine-uploader/s3.fine-uploader.js');
+window.qq = require('../node_modules/fine-uploader/fine-uploader/fine-uploader.js');
 
 $(() => {
   // Some options to pass to the uploader are discussed on the next page
-  const uploader = new qq.s3.FineUploader({
-    element: $('#uploader')[0]
+  const uploader = new qq.FineUploader({
+    element: $('#uploader')[0],
+    debug: true,
+    request: {
+      endpoint: 'http://localhost:8000/s3handler'
+    },
+    deleteFile: {
+      enabled: true,
+      endpoint: 'http://localhost:8000/s3handler'
+    }
   });
 });

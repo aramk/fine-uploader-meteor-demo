@@ -1,5 +1,7 @@
 // https://github.com/FineUploader/server-examples/blob/master/nodejs/s3/s3handler.js
 
+// TODO(aramk) This is to support client-side S3 uploads, not purely server-side.
+
 /**
  * NodeJs Server-Side Example for Fine Uploader S3.
  * Maintained by Widen Enterprises.
@@ -29,6 +31,7 @@
 var express = require("express"),
     CryptoJS = require("crypto-js"),
     bodyParser = require("body-parser"),
+    cors = require("cors"),
     aws = require("aws-sdk"),
     app = express(),
     clientSecretKey = process.env.CLIENT_SECRET_KEY,
@@ -38,8 +41,8 @@ var express = require("express"),
     serverSecretKey = process.env.SERVER_SECRET_KEY,
 
     // Set these two values to match your environment
-    expectedBucket = "fineuploadertest",
-    expectedHostname = "fineuploadertest.s3.amazonaws.com",
+    expectedBucket = process.env.BUCKET,
+    expectedHostname = expectedBucket + ".s3.amazonaws.com",
 
     // CHANGE TO INTEGERS TO ENABLE POLICY DOCUMENT VERIFICATION ON FILE SIZE
     // (recommended)
@@ -61,6 +64,7 @@ s3 = new aws.S3();
 
 
 app.use(bodyParser.json());
+app.use(cors());
 app.use(express.static(__dirname)); //only needed if serving static content as well
 app.listen(8000);
 
