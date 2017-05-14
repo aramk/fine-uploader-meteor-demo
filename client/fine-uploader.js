@@ -1,4 +1,7 @@
+// Fine Uploader
 window.qq = require('../node_modules/fine-uploader/s3.fine-uploader/s3.fine-uploader.js');
+
+const URL_PREFIX = '/fine-uploader/s3';
 
 $(() => {
   // Some options to pass to the uploader are discussed on the next page
@@ -6,21 +9,21 @@ $(() => {
     element: $('#uploader')[0],
     debug: true,
     request: {
-      endpoint: Meteor.settings.public.s3.bucket + '.s3.amazonaws.com',
+      endpoint: `${Meteor.settings.public.s3.bucket}.s3.amazonaws.com`,
       accessKey: Meteor.settings.public.s3.accessKeyId
     },
     signature: {
-      endpoint: 'http://localhost:8000/s3/signature'
+      endpoint: `${URL_PREFIX}/signature`
     },
     uploadSuccess: {
-      endpoint: 'http://localhost:8000/s3/success'
+      endpoint: `${URL_PREFIX}/success`
     },
     iframeSupport: {
-      localBlankPagePath: 'http://localhost:8000/s3/success.html'
+      localBlankPagePath: `${URL_PREFIX}/success.html`
     },
     deleteFile: {
       enabled: true,
-      endpoint: 'http://localhost:8000/s3/handler'
+      endpoint: `${URL_PREFIX}/s3/handler`
     }
   });
 });
