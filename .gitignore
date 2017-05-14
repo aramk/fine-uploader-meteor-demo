@@ -1,0 +1,4 @@
+node_modules/
+*.sublime*
+.meteor/dev_bundle
+.env
