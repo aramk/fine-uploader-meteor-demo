@@ -1,6 +1,13 @@
+Object.assign(process.env, {
+    BUCKET: Meteor.settings.s3.bucket,
+    SERVER_PUBLIC_KEY: Meteor.settings.s3.accessKeyId,
+    SERVER_SECRET_KEY: Meteor.settings.s3.secretAccessKey,
+    CLIENT_SECRET_KEY: Meteor.settings.s3.secretAccessKey
+});
+
 // https://github.com/FineUploader/server-examples/blob/master/nodejs/s3/s3handler.js
 
-// TODO(aramk) This is to support client-side S3 uploads, not purely server-side.
+// TODO(aramk) This is to support client-side S3 uploads, not server-side uploads.
 
 /**
  * NodeJs Server-Side Example for Fine Uploader S3.
@@ -48,12 +55,14 @@ var express = require("express"),
     // (recommended)
     expectedMinSize = null,
     expectedMaxSize = null,
-    // EXAMPLES DIRECTLY BELOW:
-    //expectedMinSize = 0,
-    //expectedMaxSize = 15000000,
+    // expectedMinSize = 0,
+    // expectedMaxSize = 100000000,
 
     s3;
 
+if (!clientSecretKey || !serverPublicKey || !serverSecretKey) {
+    throw new Error('Missing S3 configuration');
+}
 
 // Init S3, given your server-side keys.  Only needed if using the AWS SDK.
 aws.config.update({
@@ -62,26 +71,29 @@ aws.config.update({
 });
 s3 = new aws.S3();
 
-
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(cors());
 app.use(express.static(__dirname)); //only needed if serving static content as well
 app.listen(8000);
 
 // Handles all signature requests and the success request FU S3 sends after the file is in S3
 // You will need to adjust these paths/conditions based on your setup.
-app.post("/s3handler", function(req, res) {
-    if (typeof req.query.success !== "undefined") {
-        verifyFileInS3(req, res);
-    }
-    else {
-        signRequest(req, res);
-    }
+app.post("/s3/signature", function(req, res) {
+    signRequest(req, res);
+});
+
+app.post("/s3/success", function(req, res) {
+    verifyFileInS3(req, res);
+});
+
+app.get("/s3/success.html", function(req, res) {
+    res.end('<html><body></body></html>');
 });
 
 // Handles the standard DELETE (file) request sent by Fine Uploader S3.
 // Omit if you don't want to support this feature.
-app.delete("/s3handler/*", function(req, res) {
+app.delete("/s3/handler/*", function(req, res) {
     deleteFile(req.query.bucket, req.query.key, function(err) {
         if (err) {
             console.log("Problem deleting file: " + err);
@@ -223,16 +235,15 @@ function verifyFileInS3(req, res) {
         if (err) {
             res.status(500);
             console.log(err);
-            res.end(JSON.stringify({error: "Problem querying S3!"}));
+            res.end(JSON.stringify({error: "File upload failed."}));
         }
-        else if (data.ContentLength > expectedMaxSize) {
+        else if (expectedMaxSize != null && data.ContentLength > expectedMaxSize) {
             res.status(400);
-            res.write(JSON.stringify({error: "Too big!"}));
+            res.write(JSON.stringify({error: "File is too large."}));
             deleteFile(req.body.bucket, req.body.key, function(err) {
                 if (err) {
                     console.log("Couldn't delete invalid file!");
                 }
-
                 res.end();
             });
         }

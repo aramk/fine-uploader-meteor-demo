@@ -2,3 +2,5 @@ node_modules/
 *.sublime*
 .meteor/dev_bundle
 .env
+/settings.json
+*.log
