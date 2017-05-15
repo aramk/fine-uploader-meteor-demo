@@ -1,0 +1,13 @@
+{
+  "public": {
+    "s3": {
+      "bucket": "test",
+      "accessKeyId": "AKIAXXX"
+    }
+  },
+  "s3": {
+    "bucket": "test",
+    "accessKeyId": "AKIAXXX",
+    "secretAccessKey": "password"
+  }
+}
