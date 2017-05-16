@@ -4,12 +4,6 @@
 const aws = require('aws-sdk');
 const CryptoJS = require('crypto-js');
 
-Object.assign(process.env, {
-  SERVER_PUBLIC_KEY: Meteor.settings.s3.accessKeyId,
-  SERVER_SECRET_KEY: Meteor.settings.s3.secretAccessKey,
-  CLIENT_SECRET_KEY: Meteor.settings.s3.secretAccessKey
-});
-
 const BUCKET = Meteor.settings.s3.bucket;
 const HOSTNAME = BUCKET + '.s3.amazonaws.com';
 const SERVER_PUBLIC_KEY = Meteor.settings.s3.accessKeyId;
@@ -27,18 +21,6 @@ aws.config.update({
   secretAccessKey: SERVER_SECRET_KEY
 });
 const s3 = new aws.S3();
-
-// Meteor.methods({
-//   'file-uploader/s3/signature'() {
-
-//   },
-//   'file-uploader/s3/success'() {
-
-//   },
-//   'file-uploader/s3/success.html'() {
-    
-//   }
-// });
 
 JsonRoutes.add('post', '/fine-uploader/s3/signature', function(req, res) {
   signRequest(req, res);
